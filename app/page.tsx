@@ -21,7 +21,10 @@ export default function LandingPage() {
   const { theme, setTheme } = useTheme();
   const [isLoading, setIsLoading] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [message, setMessage] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleDownload = () => {
@@ -38,18 +41,26 @@ export default function LandingPage() {
     setMessage(null);
 
     const id = crypto.randomUUID();
-    const downloadUrl = `http://localhost:5284/stream-mp3?url=${encodeURIComponent(url)}&id=${id}`;
+    const downloadUrl = `http://localhost:5284/stream-mp3?url=${encodeURIComponent(
+      url
+    )}&id=${id}`;
 
     axios({
       url: downloadUrl,
       method: "GET",
       responseType: "blob",
+      headers: {
+        Accept: "application/json",
+      },
     })
       .then((response) => {
+        let fileName = response.headers["file-name"];
+        console.log(fileName);
+
         const blob = new Blob([response.data], { type: "audio/mpeg" });
         const downloadLink = document.createElement("a");
         downloadLink.href = URL.createObjectURL(blob);
-        downloadLink.download = "title.mp3";
+        downloadLink.download = `${fileName}.mp3`;
         document.body.appendChild(downloadLink);
         downloadLink.click();
         document.body.removeChild(downloadLink);
@@ -60,7 +71,10 @@ export default function LandingPage() {
       })
       .catch((error) => {
         console.error("Error downloading the file:", error);
-        setMessage({ type: "error", text: "ფაილის გადმოწერისას მოხდა შეცდომა." });
+        setMessage({
+          type: "error",
+          text: "ფაილის გადმოწერისას მოხდა შეცდომა.",
+        });
         setTimeout(() => setMessage(null), 5000); // Clear message after 5 seconds
         setIsLoading(false);
       });
@@ -157,7 +171,9 @@ export default function LandingPage() {
                       {message && (
                         <p
                           className={`text-sm ${
-                            message.type === "success" ? "text-green-600" : "text-red-600"
+                            message.type === "success"
+                              ? "text-green-600"
+                              : "text-red-600"
                           }`}
                         >
                           {message.text}
