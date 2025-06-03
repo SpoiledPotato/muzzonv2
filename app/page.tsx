@@ -55,6 +55,9 @@ export default function LandingPage() {
     })
       .then((response) => {
         let fileName = response.headers["file-name"];
+        if (fileName) {
+          fileName = decodeURIComponent(fileName);
+        }
         console.log(fileName);
 
         const blob = new Blob([response.data], { type: "audio/mpeg" });
